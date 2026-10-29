@@ -482,7 +482,7 @@ body { margin: 0; } img { max-width: 100%; }
 </header>
 <button class="fbtn" id="filterBtn" type="button" aria-controls="filters" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h18M6 12h12M10 19h4"></path></svg>Filters<span class="fcount" id="filterCount" hidden></span></button>
 
-<div class="demobar"><div class="wrap">Demoversie · alleen bekijken · momentopname van 29 oktober 2026</div></div>
+<div class="demobar"><div class="wrap">Demoversie · bekijken en exporteren · momentopname van 29 oktober 2026</div></div>
 <main>
   <div class="wrap">
     <aside class="filters" id="filters" aria-label="Filters">
@@ -1737,6 +1737,17 @@ state.partners = DEMO_PARTNERS.map((p) => ({ ...p }));
 state.removedCats = DEMO_REMOVED;
 render();
 fromHash();
+
+// Excel export in the demo: the file is built in the browser and saved as an ordinary download.
+// Contact details are not in the demo, so those columns are left out of the file too.
+for (let i = XL_COLS.length - 1; i >= 0; i--) if (["Contactpersonen", "Aanspreekpunt CFO Centre", "E-mail aanspreekpunt"].includes(XL_COLS[i][0])) XL_COLS.splice(i, 1);
+caps.downloads = { save: async ({ filename, data }) => {
+  const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
+  const a = document.createElement("a"); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  return { status: "saved" };
+} };
+$("exportGroup").hidden = false;
 </script>
 
 </body>
